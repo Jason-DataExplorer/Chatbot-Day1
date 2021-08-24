@@ -1,9 +1,4 @@
-import os
-import time
-import random
-import datetime
 import tempfile, os
-
 from linebot.models import *
 from flask import Flask, request, abort
 from linebot import (LineBotApi, WebhookHandler)
