@@ -13,34 +13,28 @@ line_bot_api    = LineBotApi(Channel_Access_Token)
 Channel_Secret  = ''
 handler = WebhookHandler(Channel_Secret)
 
-# 監聽所有來自 /callback 的 Post Request
+# handle request from "/callback" 
 @app.route("/callback", methods=['POST'])
 def callback():
     signature = request.headers['X-Line-Signature']
-    body = request.get_data(as_text=True)
+    body      = request.get_data(as_text=True)
     app.logger.info("Request body: " + body)
+
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
         abort(400)
     return 'OK'
 
-
-# 處理訊息
+# handle text message
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     msg = event.message.text
-    if '嗨' in msg:
-        message = TextSendMessage(text="你好")
-        line_bot_api.reply_message(event.reply_token, message)
-    elif '你好' in msg:
-        message = TextSendMessage(text="嗨")
-        line_bot_api.reply_message(event.reply_token, message)
-
-    else:
-        message = TextSendMessage(text=msg)
-        line_bot_api.reply_message(event.reply_token, message)
-
+    if event.source.user_id != " ":
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=msg)
+        )
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
